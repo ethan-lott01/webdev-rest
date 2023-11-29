@@ -7,10 +7,14 @@
         "email": "lott3211@stthomas.edu"
     },
     "contributors": [
-        "name": "Omar Alshaali",
-        "email": "omar.alshaali@stthomas.edu"
-        "name": "Pedro Cruz",
-        "email": "cruz8114@stthomas.edu"
+        {
+            "name": "Omar Alshaali",
+            "email": "omar.alshaali@stthomas.edu"
+        },
+        {
+            "name": "Pedro Cruz",
+            "email": "cruz8114@stthomas.edu"
+        }
     ],
     "repository": {
         "type": "git",
