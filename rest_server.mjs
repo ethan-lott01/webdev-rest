@@ -60,14 +60,67 @@ function dbRun(query, params) {
 app.get('/codes', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
     
-    res.status(200).type('json').send({}); // <-- you will need to change this
+    let sql = 'SELECT * FROM Codes';
+    let params = [];
+
+    if (req.query.hasOwnProperty('code')) {
+        const ids = req.query.code.split(',');
+
+        for (let i = 0; i < ids.length; i++){
+            if (i == 0){
+                sql += ' WHERE code=?';
+                params.push(ids[i]);
+            }
+            else {
+                sql += ' OR code=?'
+                params.push(ids[i]);
+            }
+        }
+    }
+
+    dbSelect(sql,params)
+    .then((rows) => {
+        rows = JSON.parse(JSON.stringify(rows).split('"incident_type":').join('"type":'));
+        res.status(200).type('json').send(rows)
+    })
+    .catch ((error) => {
+        res.status(500).type('text').send(error)
+    })
 });
 
 // GET request handler for neighborhoods
 app.get('/neighborhoods', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
     
-    res.status(200).type('json').send({}); // <-- you will need to change this
+    let sql = 'SELECT * FROM Neighborhoods';
+    let params = [];
+
+    if (req.query.hasOwnProperty('id')) {
+        const ids = req.query.id.split(',');
+
+        for (let i = 0; i < ids.length; i++){
+            if (i == 0){
+                sql += ' WHERE neighborhood_number=?';
+                params.push(ids[i]);
+            }
+            else {
+                sql += ' OR neighborhood_number=?'
+                params.push(ids[i]);
+            }
+        }
+    }
+
+    sql += ' ORDER BY neighborhood_number'
+
+    dbSelect(sql,params)
+    .then((rows) => {
+        rows = JSON.parse(JSON.stringify(rows).split('"neighborhood_number":').join('"id":'));
+        rows = JSON.parse(JSON.stringify(rows).split('"neighborhood_name":').join('"name":'));
+        res.status(200).type('json').send(rows)
+    })
+    .catch ((error) => {
+        res.status(500).type('text').send(error)
+    })
 });
 
 // GET request handler for crime incidents
