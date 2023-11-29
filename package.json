@@ -3,12 +3,19 @@
     "description": "REST Server",
     "version": "1.0.0",
     "author": {
-        "name": "",
-        "email": ""
+        "name": "Ethan Lott",
+        "email": "lott3211@stthomas.edu"
     },
     "contributors": [
+        "name": "Omar Alshaali",
+        "email": "omar.alshaali@stthomas.edu"
+        "name": "Pedro Cruz",
+        "email": "cruz8114@stthomas.edu"
     ],
-    "repository": {},
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/npm/cli.git"
+    },
     "dependencies": {
         "express": "^4.18.2",
         "sqlite3": "^5.1.6"
