@@ -262,8 +262,42 @@ app.get('/incidents', (req, res) => {
 // PUT request handler for new crime incident
 app.put('/new-incident', (req, res) => {
     console.log(req.body); // uploaded data
-    
-    res.status(200).type('txt').send('OK'); // <-- you may need to change this
+    let incident_data = req.body;
+    let incident_id = incident_data.case_number;
+
+    // check if incident already exists
+    dbSelect('SELECT * FROM Incidents WHERE case_number=?', [incident_id])
+    .then((existing_incident) => {
+        if (existing_incident.length > 0) {
+            // Incident already exists, reject
+            res.status(500).type('txt').send('Incident already exists');
+        }
+        else {
+            // Incident doesn't exist, proceed with adding it
+            const sql = 'INSERT INTO Incidents (case_number, date, time, code, incident, police_grid, neighborhood_number, block) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+            const params = [
+                incident_data.case_number,
+                incident_data.date,
+                incident_data.time,
+                incident_data.code,
+                incident_data.incident,
+                incident_data.police_grid,
+                incident_data.neighborhood_number,
+                incident_data.block
+            ];
+
+            dbRun(sql, params)
+            .then(() => {
+                res.status(200).type('txt').send('Incident added successfully');
+            })
+            .catch((error) => {
+                res.status(500).type('txt').send(error);
+            });
+        }
+    })
+    .catch((error) => {
+        res.status(500).type('txt').send(error);
+    });
 });
 
 // DELETE request handler for new crime incident
