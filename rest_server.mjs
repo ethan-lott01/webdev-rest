@@ -104,7 +104,7 @@ app.get('/neighborhoods', (req, res) => {
                 params.push(ids[i]);
             }
             else {
-                sql += ' OR neighborhood_number=?'
+                sql += ' OR neighborhood_number=?';
                 params.push(ids[i]);
             }
         }
@@ -126,8 +126,137 @@ app.get('/neighborhoods', (req, res) => {
 // GET request handler for crime incidents
 app.get('/incidents', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
+
+    let sql = 'SELECT * FROM Incidents';
+    let params = [];
     
-    res.status(200).type('json').send({}); // <-- you will need to change this
+    if (req.query.hasOwnProperty('start_date')) {
+        if (params.length === 0) {
+            sql += ' WHERE date_time <= ?'
+        }
+        else {
+            sql += ' AND date_time <= ?'
+        }
+        params.push(req.query.start_date+'T23:59:59');
+    }
+    if (req.query.hasOwnProperty('end_date')) {
+        if (params.length === 0) {
+            sql += ' WHERE date_time >= ?'
+        }
+        else {
+            sql += ' AND date_time >= ?'
+        }
+        params.push(req.query.end_date);
+    }
+    if (req.query.hasOwnProperty('code')) {
+        const ids = req.query.code.split(',');
+
+        for (let i = 0; i < ids.length; i++){
+            if (i == 0){
+                if (params.length === 0) {
+                    sql += ' WHERE (code=?';
+                    params.push(ids[i]);
+                }
+                else {
+                    sql += ' AND (code=?';
+                    params.push(ids[i]);
+                }
+            }
+            else {
+                sql += ' OR code=?)';
+                params.push(ids[i]);
+                if (i === ids.length-1) {
+                    sql += ')';
+                }
+            }
+            if (ids.length === 1) {
+                sql += ')';
+            }
+        }
+    }
+    if (req.query.hasOwnProperty('grid')) {
+        const ids = req.query.grid.split(',');
+
+        for (let i = 0; i < ids.length; i++){
+            if (i === 0){
+                if (params.length === 0){
+                    sql += ' WHERE (police_grid=?';
+                    params.push(ids[i]);
+                }
+                else {
+                    sql += ' AND (police_grid=?';
+                    params.push(ids[i]);
+                }
+            }
+            else {
+                sql += ' OR police_grid=?';
+                params.push(ids[i]);
+                if (i === ids.length-1) {
+                    sql += ')';
+                }
+            }
+            if (ids.length === 1) {
+                sql += ')';
+            }
+        }
+    }
+    if (req.query.hasOwnProperty('neighborhood')) {
+        const ids = req.query.neighborhood.split(',');
+
+        for (let i = 0; i < ids.length; i++){
+            if (i === 0){
+                if (params.length === 0){
+                    sql += ' WHERE (neighborhood_number=?';
+                    params.push(ids[i]);
+                }
+                else {
+                    sql += ' AND (neighborhood_number=?';
+                    params.push(ids[i]);
+                }
+            
+            }
+            else {
+                sql += ' OR neighborhood_number=?';
+                params.push(ids[i]);
+                if (i === ids.length-1) {
+                    sql += ')';
+                }
+            }
+            if (ids.length === 1) {
+                sql += ')';
+            }
+        }
+    }
+    
+    sql += ' ORDER BY date_time DESC';
+
+    if (req.query.hasOwnProperty('limit')) {
+        sql += ' LIMIT ?'
+        params.push(req.query.limit)
+    }
+    else {
+        sql += ' LIMIT 1000'
+    }
+    
+    
+
+    dbSelect(sql,params)
+    .then((rows) => {
+        const result = rows.map(x => ({
+            case_number: x.case_number,
+            date: x['date_time'].split('T')[0],
+            time: x['date_time'].split('T')[1],
+            code: x.code,
+            incident: x.incident,
+            police_grid: x.police_grid,
+            neighborhood_number: x.neighborhood_number,
+            block: x.block
+        }))
+        res.status(200).type('json').send(result)
+    })
+    .catch ((error) => {
+        res.status(500).type('text').send(error)
+    })
 });
 
 // PUT request handler for new crime incident
