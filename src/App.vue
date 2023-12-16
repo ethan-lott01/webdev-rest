@@ -2,6 +2,7 @@
 import { reactive, ref, onMounted } from 'vue'
 
 let crime_url = ref('');
+//let coordinates = [44.955139,-93.102222];
 let dialog_err = ref(false);
 let map = reactive(
     {
@@ -35,8 +36,8 @@ let map = reactive(
             {location: [44.937705, -93.136997], marker: null},
             {location: [44.949203, -93.093739], marker: null}
         ]
-    }
-);
+    });
+let coordinates = [map.center.lat,map.center.lng];
 
 // Vue callback for once <template> HTML has been added to web page
 onMounted(() => {
@@ -48,6 +49,19 @@ onMounted(() => {
         maxZoom: 18
     }).addTo(map.leaflet);
     map.leaflet.setMaxBounds([[44.883658, -93.217977], [45.008206, -92.993787]]);
+
+    // Add event listener for dragend
+    map.leaflet.on('dragend', (e) => {
+        // Update coordinates based on new center position
+        coordinates[0] = e.target.getCenter().lat;
+        coordinates[1] = e.target.getCenter().lng;
+
+        // Update input field values with a slight delay (optional)
+        setTimeout(() => {
+            document.getElementById("latitude-input").value = coordinates[0];
+            document.getElementById("longitude-input").value = coordinates[1];
+        }, 100); // Replace 100 with your desired delay in milliseconds
+    });
 
     // Get boundaries for St. Paul neighborhoods
     let district_boundary = new L.geoJson();
@@ -72,6 +86,18 @@ onMounted(() => {
 function initializeCrimes() {
     // TODO: get code and neighborhood data
     //       get initial 1000 crimes
+    // Get the base URL from the user input
+    const baseUrl = crime_url.value;
+    // Build the specific endpoint with coordinates (replace with your actual API syntax)
+    //const endpoint = `${baseUrl}/crimedata?coordinates=${coordinates}`;
+    // Use the built endpoint in your fetch call
+    //fetch(endpoint, {
+        //method: "POST",
+        //body: JSON.stringify({}), // Replace with relevant data if needed
+    //})
+    //.then((response) => response.json())
+    // ... Process the received data ...
+
 }
 
 // Function called when user presses 'OK' on dialog box
@@ -87,6 +113,41 @@ function closeDialog() {
         dialog_err.value = true;
     }
 }
+
+// Function that submits location from input box
+function submitLocation() {
+    if (!coordinates) {
+        console.error("Missing location data. Please enter all coordinates.");
+        return;
+    }
+  // Send the coordinates to the REST API (replace with your actual API call)
+  //fetch("/api/crimedata", {
+    //method: "POST",
+    //body: JSON.stringify({ coordinates }),
+  //})
+    //.then((response) => response.json())
+    //.then((data) => {
+      // Update map based on the received data (e.g., center on location, display markers)
+      // ...
+
+      //console.log("Location submitted successfully!");
+    //})
+    //.catch((error) => {
+      //console.error("Error submitting location:", error);
+    //});
+
+    // Extract coordinates from the array
+    let lat = coordinates[0];
+    let lng = coordinates[1];
+    
+    // Update the map center
+    map.leaflet.setView([lat, lng]);
+
+    // Update the coordinates displayed
+    coordinates[0] = lat;
+    coordinates[1] = lng;
+}
+
 </script>
 
 <template>
@@ -101,6 +162,15 @@ function closeDialog() {
     <div class="grid-container ">
         <div class="grid-x grid-padding-x">
             <div id="leafletmap" class="cell auto"></div>
+        </div>
+        <div class="grid-x grid-padding-x">
+            <div id="input-box" class="cell auto">
+                <div>Enter Location: {{ coordinates }}</div>
+                <input id="lat" v-model="coordinates[0]" placeholder="Latitude"/>
+                <input id="long" v-model="coordinates[1]" placeholder="Longitude"/>
+                <input id="addy" v-model="addy" placeholder="Address"/>
+                <button v-on:click="submitLocation()">Go</button>
+            </div>
         </div>
     </div>
 </template>
