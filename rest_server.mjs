@@ -141,19 +141,19 @@ app.get("/incidents", (req, res) => {
 
   if (req.query.hasOwnProperty("start_date")) {
     if (params.length === 0) {
-      sql += " WHERE date_time <= ?";
-    } else {
-      sql += " AND date_time <= ?";
-    }
-    params.push(req.query.start_date + "T23:59:59");
-  }
-  if (req.query.hasOwnProperty("end_date")) {
-    if (params.length === 0) {
       sql += " WHERE date_time >= ?";
     } else {
       sql += " AND date_time >= ?";
     }
-    params.push(req.query.end_date);
+    params.push(req.query.start_date);
+  }
+  if (req.query.hasOwnProperty("end_date")) {
+    if (params.length === 0) {
+      sql += " WHERE date_time <= ?";
+    } else {
+      sql += " AND date_time <= ?";
+    }
+    params.push(req.query.end_date + "T23:59:59");
   }
   if (req.query.hasOwnProperty("code")) {
     const ids = req.query.code.split(",");

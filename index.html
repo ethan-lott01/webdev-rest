@@ -20,7 +20,10 @@
 </head>
 <body>
     <!-- Main app (map, crime table, and filters) -->
-    <div id="app"></div>
+    <div id="app">
+        <input type="text" v-model="map.center.address" placeholder="Enter an address" />
+        <button @click="updateMapFromInput(map.center.address)">Go</button>
+    </div>
     
     <!-- Foundation CSS Framework: include before closing <body> tag -->
     <script src="js/vendor/jquery.js"></script>
