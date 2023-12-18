@@ -3,6 +3,7 @@ import * as url from "node:url";
 
 import { default as express } from "express";
 import { default as sqlite3 } from "sqlite3";
+import cors from "cors";
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 const db_filename = path.join(__dirname, "db", "stpaul_crime.sqlite3");
@@ -10,6 +11,13 @@ const db_filename = path.join(__dirname, "db", "stpaul_crime.sqlite3");
 const port = 8000;
 
 let app = express();
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 /********************************************************************
@@ -250,7 +258,8 @@ app.get("/incidents", (req, res) => {
 
 // PUT request handler for new crime incident
 app.put("/new-incident", (req, res) => {
-  console.log(req.body); // uploaded data
+  console.log("Received PUT request for new incident");
+  console.log(req.body);
   let incident_data = req.body;
   let incident_id = incident_data.case_number;
 
@@ -263,11 +272,10 @@ app.put("/new-incident", (req, res) => {
       } else {
         // Incident doesn't exist, proceed with adding it
         const sql =
-          "INSERT INTO Incidents (case_number, date, time, code, incident, police_grid, neighborhood_number, block) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+          "INSERT INTO Incidents (case_number, date_time, code, incident, police_grid, neighborhood_number, block) VALUES (?, ?, ?, ?, ?, ?, ?)";
         const params = [
           incident_data.case_number,
-          incident_data.date,
-          incident_data.time,
+          incident_data.date_time, // Assuming date_time is already formatted correctly
           incident_data.code,
           incident_data.incident,
           incident_data.police_grid,
