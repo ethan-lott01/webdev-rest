@@ -1,13 +1,8 @@
 <script setup>
-<<<<<<< HEAD
-import { reactive, ref, onMounted } from "vue";
-=======
-import { reactive, ref, onMounted, computed } from 'vue'
->>>>>>> 3aadf4f29dd9da50710d3db37a128bc870be0721
+import { reactive, ref, onMounted, computed } from "vue";
 
 let crime_url = ref("");
 let dialog_err = ref(false);
-<<<<<<< HEAD
 
 let case_number = ref("");
 let date = ref("");
@@ -50,49 +45,16 @@ let map = reactive({
     { location: [44.949203, -93.093739], marker: null },
   ],
 });
-=======
-let map = reactive(
-    {
-        leaflet: null,
-        center: {
-            lat: 44.955139,
-            lng: -93.102222,
-            address: ''
-        },
-        zoom: 12,
-        bounds: {
-            nw: {lat: 45.008206, lng: -93.217977},
-            se: {lat: 44.883658, lng: -92.993787}
-        },
-        neighborhood_markers: [
-            {location: [44.942068, -93.020521], marker: null},
-            {location: [44.977413, -93.025156], marker: null},
-            {location: [44.931244, -93.079578], marker: null},
-            {location: [44.956192, -93.060189], marker: null},
-            {location: [44.978883, -93.068163], marker: null},
-            {location: [44.975766, -93.113887], marker: null},
-            {location: [44.959639, -93.121271], marker: null},
-            {location: [44.947700, -93.128505], marker: null},
-            {location: [44.930276, -93.119911], marker: null},
-            {location: [44.982752, -93.147910], marker: null},
-            {location: [44.963631, -93.167548], marker: null},
-            {location: [44.973971, -93.197965], marker: null},
-            {location: [44.949043, -93.178261], marker: null},
-            {location: [44.934848, -93.176736], marker: null},
-            {location: [44.913106, -93.170779], marker: null},
-            {location: [44.937705, -93.136997], marker: null},
-            {location: [44.949203, -93.093739], marker: null}
-        ]
-    });
 let latitude = ref(44.955139);
 let longitude = ref(-93.102222);
-let address = ref('Minnesota State Capitol, 75, Reverend Doctor Martin Luther King Junior Boulevard, Downtown, Saint Paul, Ramsey County, Minnesota, 55155, United States');
+let address = ref(
+  "Minnesota State Capitol, 75, Reverend Doctor Martin Luther King Junior Boulevard, Downtown, Saint Paul, Ramsey County, Minnesota, 55155, United States"
+);
 let showAddress = ref("off");
->>>>>>> 3aadf4f29dd9da50710d3db37a128bc870be0721
 
 // Vue callback for once <template> HTML has been added to web page
 onMounted(() => {
-  // Create Leaflet map (set bounds and valid zoom levels)
+  // Create Leaflet map (set bounds and valied zoom levels)
   map.leaflet = L.map("leafletmap").setView(
     [map.center.lat, map.center.lng],
     map.zoom
@@ -124,22 +86,24 @@ onMounted(() => {
       console.log("Error:", error);
     });
 
-    // Update location when user drags the map
-    map.leaflet.on('dragend', (e) => {
-        const newCenter = e.target.getCenter();
-        latitude.value = newCenter.lat;
-        longitude.value = newCenter.lng;
-        fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude.value}&lon=${longitude.value}`)
-            .then((response) => response.json())
-            .then((data) => {
-                address.value = data.display_name;
-            })
-            .catch((error) => {
-                console.error('Error fetching address:', error);
-            });
-    });
+  // Update location when user drags the map
+  map.leaflet.on("dragend", (e) => {
+    const newCenter = e.target.getCenter();
+    latitude.value = newCenter.lat;
+    longitude.value = newCenter.lng;
+    fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude.value}&lon=${longitude.value}`
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        address.value = data.display_name;
+      })
+      .catch((error) => {
+        console.error("Error fetching address:", error);
+      });
+  });
 
-    /*
+  /*
     //const url = "https://your-api.com/data?lat=" + coordinates[0] + "&lon=" + coordinates[1];
     fetch(url)
     .then((response) => response.json())
@@ -159,27 +123,20 @@ onMounted(() => {
 // FUNCTIONS
 // Function called once user has entered REST API URL
 function initializeCrimes() {
-<<<<<<< HEAD
   // TODO: get code and neighborhood data
   //       get initial 1000 crimes
+  // Get the base URL from the user input
+  const baseUrl = crime_url.value;
+  // Build the specific endpoint with coordinates (replace with your actual API syntax)
+  //const endpoint = `${baseUrl}/crimedata?coordinates=${coordinates}`;
+  // Use the built endpoint in your fetch call
+  //fetch(endpoint, {
+  //method: "POST",
+  //body: JSON.stringify({}), // Replace with relevant data if needed
+  //})
+  //.then((response) => response.json())
+  // ... Process the received data ...
 }
-=======
-    // TODO: get code and neighborhood data
-    //       get initial 1000 crimes
-    // Get the base URL from the user input
-    const baseUrl = crime_url.value;
-    // Build the specific endpoint with coordinates (replace with your actual API syntax)
-    //const endpoint = `${baseUrl}/crimedata?coordinates=${coordinates}`;
-    // Use the built endpoint in your fetch call
-    //fetch(endpoint, {
-        //method: "POST",
-        //body: JSON.stringify({}), // Replace with relevant data if needed
-    //})
-    //.then((response) => response.json())
-    // ... Process the received data ...
-
-};
->>>>>>> 3aadf4f29dd9da50710d3db37a128bc870be0721
 
 // Function called when user presses 'OK' on dialog box
 function closeDialog() {
@@ -194,23 +151,76 @@ function closeDialog() {
   }
 }
 
+// Function called when user presses 'Go' input box
+function submitLocation() {
+  /*
+  // Send the coordinates to the REST API (replace with your actual API call)
+  //fetch("/api/crimedata", {
+    //method: "POST",
+    //body: JSON.stringify({ coordinates }),
+  //})
+    //.then((response) => response.json())
+    //.then((data) => {
+      // Update map based on the received data (e.g., center on location, display markers)
+      // ...
+
+      //console.log("Location submitted successfully!");
+    //})
+    //.catch((error) => {
+      //console.error("Error submitting location:", error);
+    //});
+    */
+
+  // Query the Nominatim API based on input method
+  let coordinates = [];
+  let url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude.value}&lon=${longitude.value}`;
+  let url2 = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=${address.value}`;
+  if (showAddress === "on") {
+    console.log("Address selected");
+    fetch(url2.replaceAll(" ", "+"))
+      .then((response) => response.json())
+      .then((data) => {
+        latitude.value = data.lat;
+        longitude.value = data.lon;
+      })
+      .catch((error) => {
+        console.error("Error fetching address:", error);
+      });
+  } else {
+    console.log("Coordinates selected");
+    coordinates = [latitude.value, longitude.value];
+    console.log(url);
+    fetch(url)
+      .then((response) => response.json())
+      .then((data) => {
+        address.value = data.display_name;
+      })
+      .catch((error) => {
+        console.error("Error fetching address:", error);
+      });
+  }
+  // Update the map center
+  map.leaflet.setView(coordinates);
+}
+
 async function submitForm(event) {
   try {
     // Check if form filled out
     if (
-      !case_number._value ||
-      !date._value ||
-      !time._value ||
-      !code._value ||
-      !incident._value ||
-      !police_grid._value ||
-      !neighborhood_number._value ||
-      !block._value
+      case_number._value.trim() === "" ||
+      date._value.trim() === "" ||
+      time._value.trim() === "" ||
+      code._value.trim() === "" ||
+      incident._value.trim() === "" ||
+      police_grid._value.trim() === "" ||
+      neighborhood_number._value.trim() === "" ||
+      block._value.trim() === ""
     ) {
+      console.log("Form fields not filled out");
       window.alert("Please fill out all form fields.");
       return;
     }
-<<<<<<< HEAD
+
     const dateTimeString = `${date._value}T${time._value}:00`;
 
     const requestData = {
@@ -245,6 +255,8 @@ async function submitForm(event) {
         // Handle the response
         if (response.ok) {
           console.log("Incident added successfully");
+          // Add window.alert for successful submission
+          window.alert("Incident added successfully");
         } else {
           console.error("Failed to add incident:", response.statusText);
         }
@@ -269,123 +281,54 @@ async function submitForm(event) {
       v-model="crime_url"
       placeholder="http://localhost:8000"
     />
-    <p class="dialog-error" v-if="dialog_err">Error: must enter a valid URL</p>
+    <p class="dialog-error" v-if="dialog_err">Error: must enter valid URL</p>
     <br />
     <button class="button" type="button" @click="closeDialog">OK</button>
   </dialog>
   <div class="grid-container">
     <div class="grid-x grid-padding-x">
       <div id="leafletmap" class="cell auto"></div>
-=======
-};
-
-// Function called when user presses 'Go' input box
-function submitLocation() {
-    /*
-  // Send the coordinates to the REST API (replace with your actual API call)
-  //fetch("/api/crimedata", {
-    //method: "POST",
-    //body: JSON.stringify({ coordinates }),
-  //})
-    //.then((response) => response.json())
-    //.then((data) => {
-      // Update map based on the received data (e.g., center on location, display markers)
-      // ...
-
-      //console.log("Location submitted successfully!");
-    //})
-    //.catch((error) => {
-      //console.error("Error submitting location:", error);
-    //});
-    */
-    
-    // Query the Nominatim API based on input method
-    let coordinates = [];
-    let url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude.value}&lon=${longitude.value}`;
-    let url2 = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=${address.value}`;
-    if (showAddress === "on") {
-        console.log("Address selected");
-        fetch(url2.replaceAll(' ', '+'))
-            .then((response) => response.json())
-            .then((data) => {
-                latitude.value = data.lat;
-                longitude.value = data.lon;
-            })
-            .catch((error) => {
-                console.error('Error fetching address:', error);
-            });
-
-    } else {
-        console.log("Coordinates selected");
-        coordinates = [latitude.value, longitude.value];
-        console.log(url);
-        fetch(url)
-            .then((response) => response.json())
-            .then((data) => {
-                address.value = data.display_name;
-            })
-            .catch((error) => {
-                console.error('Error fetching address:', error);
-            });
-    };
-    // Update the map center
-    map.leaflet.setView(coordinates);
-};
-</script>
-
-<template>
-    <dialog id="rest-dialog" open>
-        <h1 class="dialog-header">St. Paul Crime REST API</h1>
-        <label class="dialog-label">URL: </label>
-        <input id="dialog-url" class="dialog-input" type="url" v-model="crime_url" placeholder="http://localhost:8000" />
-        <p class="dialog-error" v-if="dialog_err">Error: must enter valid URL</p>
-        <br/>
-        <button class="button" type="button" @click="closeDialog">OK</button>
-    </dialog>
-    <div class="grid-container">
-        <div class="grid-x grid-padding-x">
-            <div id="leafletmap" class="cell auto"></div>
+    </div>
+    <div class="grid-x grid-padding-x">
+      <div id="input-box" class="cell auto">
+        <h2 class="dialog-header">Enter Location:</h2>
+        <div class="grid-x"></div>
+        <label for="show-address">Address:</label>
+        <input
+          type="radio"
+          id="show-address"
+          name="display-options"
+          v-model="showAddress"
+          value="on"
+        />
+        <br />
+        <label for="show-coordinates">Coordinates:</label>
+        <input
+          type="radio"
+          id="show-coordinates"
+          name="display-options"
+          v-model="showAddress"
+          value="off"
+        />
+        <div v-show="showAddress === 'on'">
+          <label>Address:</label
+          ><input id="address" v-model="address" placeholder="Address" />
         </div>
-        <div class="grid-x grid-padding-x">
-            <div id="input-box" class="cell auto">
-                <h2 class="dialog-header">Enter Location:</h2>
-                <div class="grid-x"></div>
-                <label for="show-address">Address:</label>
-                <input
-                    type="radio"
-                    id="show-address"
-                    name="display-options"
-                    v-model="showAddress"
-                    value="on"
-                />
-                <br>
-                <label for="show-coordinates">Coordinates:</label>
-                <input
-                    type="radio"
-                    id="show-coordinates"
-                    name="display-options"
-                    v-model="showAddress"
-                    value="off"
-                />
-                <div v-show="showAddress === 'on'">
-                    <label>Address:</label><input id="address" v-model="address" placeholder="Address"/>
-                </div>
 
-                <div v-show="showAddress === 'off'">
-                    <label>Latitude:</label><input id="lat" v-model="latitude" placeholder="44.955139" />
-                    <label>Longitude:</label><input id="lng" v-model="longitude" placeholder="-93.102222" />
-                </div>
-                <button class="clickable" v-on:click="submitLocation()">Go</button>
-                <p id="address">Here is the address: {{ address }}</p>
-                <p id="coordinates">Here are the coordinates: {{ latitude }}, {{ longitude }}</p>
-            </div>
+        <div v-show="showAddress === 'off'">
+          <label>Latitude:</label
+          ><input id="lat" v-model="latitude" placeholder="44.955139" />
+          <label>Longitude:</label
+          ><input id="lng" v-model="longitude" placeholder="-93.102222" />
         </div>
->>>>>>> 3aadf4f29dd9da50710d3db37a128bc870be0721
+        <button class="clickable" v-on:click="submitLocation()">Go</button>
+        <p id="address">Here is the address: {{ address }}</p>
+        <p id="coordinates">
+          Here are the coordinates: {{ latitude }}, {{ longitude }}
+        </p>
+      </div>
     </div>
   </div>
-
-  <div><p>http://localhost:8000</p></div>
-
   <div style="width: 40%; margin-left: 20px">
     <form>
       <h2>Add New Incident</h2>
@@ -426,8 +369,8 @@ function submitLocation() {
 }
 
 #input-box {
-    border-style: solid;
-    border-color: royalblue;
+  border-style: solid;
+  border-color: royalblue;
 }
 
 .dialog-header {
@@ -450,7 +393,6 @@ function submitLocation() {
 }
 
 .clickable {
-    cursor: pointer;
+  cursor: pointer;
 }
-
 </style>
