@@ -38,18 +38,7 @@ let map = reactive(
     });
 let latitude = ref(44.955139);
 let longitude = ref(-93.102222);
-// Update the address based whenever the coordinates change
 let address = ref('Minnesota State Capitol, 75, Reverend Doctor Martin Luther King Junior Boulevard, Downtown, Saint Paul, Ramsey County, Minnesota, 55155, United States');
-computed(() => {
-    fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude.value}&lon=${longitude.value}`)
-        .then((response) => response.json())
-        .then((data) => {
-            address.value = data.display_name || 'Address not found';
-        })
-        .catch((error) => {
-            console.error('Error fetching address:', error);
-        });
-}, [latitude, longitude]);
 let showAddress = ref("off");
 
 // Vue callback for once <template> HTML has been added to web page
@@ -79,7 +68,7 @@ onMounted(() => {
         console.log('Error:', error);
     });
 
-    // Make Leaflet map update the coordinates when user drags to new location
+    // Update location when user drags the map
     map.leaflet.on('dragend', (e) => {
         const newCenter = e.target.getCenter();
         latitude.value = newCenter.lat;
@@ -165,11 +154,22 @@ function submitLocation() {
     //});
     */
     
-    // Avoid losing reactivity of latitude and longitdue variables
+    // Query the Nominatim API based on input method
     let coordinates = [];
     let url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude.value}&lon=${longitude.value}`;
+    let url2 = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=${address.value}`;
     if (showAddress === "on") {
         console.log("Address selected");
+        fetch(url2.replaceAll(' ', '+'))
+            .then((response) => response.json())
+            .then((data) => {
+                latitude.value = data.lat;
+                longitude.value = data.lon;
+            })
+            .catch((error) => {
+                console.error('Error fetching address:', error);
+            });
+
     } else {
         console.log("Coordinates selected");
         coordinates = [latitude.value, longitude.value];
@@ -182,8 +182,7 @@ function submitLocation() {
             .catch((error) => {
                 console.error('Error fetching address:', error);
             });
-    }
-
+    };
     // Update the map center
     map.leaflet.setView(coordinates);
 };
