@@ -152,7 +152,7 @@ function closeDialog() {
 }
 
 // Function called when user presses 'Go' input box
-function submitLocation() {
+function submitLocation(lat, lon, add) {
   /*
   // Send the coordinates to the REST API (replace with your actual API call)
   //fetch("/api/crimedata", {
@@ -170,37 +170,38 @@ function submitLocation() {
       //console.error("Error submitting location:", error);
     //});
     */
-
-  // Query the Nominatim API based on input method
-  let coordinates = [];
-  let url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude.value}&lon=${longitude.value}`;
-  let url2 = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=${address.value}`;
-  if (showAddress === "on") {
-    console.log("Address selected");
-    fetch(url2.replaceAll(" ", "+"))
-      .then((response) => response.json())
-      .then((data) => {
-        latitude.value = data.lat;
-        longitude.value = data.lon;
-      })
-      .catch((error) => {
-        console.error("Error fetching address:", error);
-      });
-  } else {
-    console.log("Coordinates selected");
-    coordinates = [latitude.value, longitude.value];
-    console.log(url);
-    fetch(url)
-      .then((response) => response.json())
-      .then((data) => {
-        address.value = data.display_name;
-      })
-      .catch((error) => {
-        console.error("Error fetching address:", error);
-      });
-  }
-  // Update the map center
-  map.leaflet.setView(coordinates);
+    // Query the Nominatim API based on input method
+    let url = ``;
+    if (showAddress.value === "on") {
+        console.log("Address selected");
+        add = add.replaceAll(" ", "+").trim();
+        url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=${add}+Saint+Paul,+Minnesota`;
+        console.log(url);
+        fetch(url)
+            .then((response) => response.json())
+            .then((data) => {
+                latitude.value = data[0].lat;
+                longitude.value = data[0].lon;
+                address.value = data[0].display_name;
+                map.leaflet.setView([latitude.value, longitude.value]);
+        })
+        .catch((error) => {
+            console.error("Error fetching address:", error);
+        });
+    } else {
+        console.log("Coordinates selected");
+        url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude.value}&lon=${longitude.value}`;
+        console.log(url);
+        fetch(url)
+            .then((response) => response.json())
+            .then((data) => {
+                address.value = data.display_name;
+                map.leaflet.setView([latitude.value, longitude.value]);
+        })
+        .catch((error) => {
+            console.error("Error fetching coordinates:", error);
+        });
+    }
 }
 
 async function submitForm(event) {
@@ -311,8 +312,8 @@ async function submitForm(event) {
           value="off"
         />
         <div v-show="showAddress === 'on'">
-          <label>Address:</label
-          ><input id="address" v-model="address" placeholder="Address" />
+          <label>Street Address:</label>
+          <input id="address" v-model="address" placeholder="Address" />
         </div>
 
         <div v-show="showAddress === 'off'">
@@ -321,7 +322,7 @@ async function submitForm(event) {
           <label>Longitude:</label
           ><input id="lng" v-model="longitude" placeholder="-93.102222" />
         </div>
-        <button class="clickable" v-on:click="submitLocation()">Go</button>
+        <button class="clickable" v-on:click="submitLocation(latitude.valueOf(), longitude.valueOf(), address.valueOf())">Go</button>
         <p id="address">Here is the address: {{ address }}</p>
         <p id="coordinates">
           Here are the coordinates: {{ latitude }}, {{ longitude }}
