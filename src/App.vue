@@ -53,6 +53,27 @@ let address = ref(
 let showAddress = ref("off");
 let crimes = ref([]);
 
+//array to convert neighborhood number to neighboorhood name
+let neighborhood_names = [
+  "Southeast",
+  "Greater East Side",
+  "West Side",
+  "Dayton's Bluff",
+  "Payne/Phalen",
+  "North End",
+  "Frogtown",
+  "Summit/University",
+  "West Seventh",
+  "Como",
+  "Hamline/Midway",
+  "St. Anthony",
+  "Union Park",
+  "Macalester-Groveland",
+  "Highland",
+  "Summit Hill",
+  "Downtown"
+];
+
 // Vue callback for once <template> HTML has been added to web page
 onMounted(() => {
   // Create Leaflet map (set bounds and valied zoom levels)
@@ -347,7 +368,7 @@ async function submitForm(event) {
         <th>Time</th>
       </tr>
       <tr v-for="rows in crimes.valueOf()">
-        <th>{{ rows.block }}</th>
+        <th>{{ neighborhood_names[rows.neighborhood_number - 1] }}</th>
         <th>{{ rows.incident }}</th>
         <th>{{ rows.date }}</th>
         <th>{{ rows.time }}</th>

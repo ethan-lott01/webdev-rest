@@ -168,7 +168,7 @@ app.get("/incidents", (req, res) => {
           params.push(ids[i]);
         }
       } else {
-        sql += " OR code=?)";
+        sql += " OR code=?";
         params.push(ids[i]);
         if (i === ids.length - 1) {
           sql += ")";
