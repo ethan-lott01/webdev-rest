@@ -159,11 +159,6 @@ function initializeCrimes() {
     .catch((error) => {
       console.error("Error fetching crimes:", error);
     });
-
-
-
-
-
 }
 
 // Function called when user presses 'OK' on dialog box
@@ -198,38 +193,38 @@ function submitLocation(lat, lon, add) {
       //console.error("Error submitting location:", error);
     //});
     */
-    // Query the Nominatim API based on input method
-    let url = ``;
-    if (showAddress.value === "on") {
-        console.log("Address selected");
-        add = add.replaceAll(" ", "+").trim();
-        url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=${add}+Saint+Paul,+Minnesota`;
-        console.log(url);
-        fetch(url)
-            .then((response) => response.json())
-            .then((data) => {
-                latitude.value = data[0].lat;
-                longitude.value = data[0].lon;
-                address.value = data[0].display_name;
-                map.leaflet.setView([latitude.value, longitude.value]);
-        })
-        .catch((error) => {
-            console.error("Error fetching address:", error);
-        });
-    } else {
-        console.log("Coordinates selected");
-        url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude.value}&lon=${longitude.value}`;
-        console.log(url);
-        fetch(url)
-            .then((response) => response.json())
-            .then((data) => {
-                address.value = data.display_name;
-                map.leaflet.setView([latitude.value, longitude.value]);
-        })
-        .catch((error) => {
-            console.error("Error fetching coordinates:", error);
-        });
-    }
+  // Query the Nominatim API based on input method
+  let url = ``;
+  if (showAddress.value === "on") {
+    console.log("Address selected");
+    add = add.replaceAll(" ", "+").trim();
+    url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=${add}+Saint+Paul,+Minnesota`;
+    console.log(url);
+    fetch(url)
+      .then((response) => response.json())
+      .then((data) => {
+        latitude.value = data[0].lat;
+        longitude.value = data[0].lon;
+        address.value = data[0].display_name;
+        map.leaflet.setView([latitude.value, longitude.value]);
+      })
+      .catch((error) => {
+        console.error("Error fetching address:", error);
+      });
+  } else {
+    console.log("Coordinates selected");
+    url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude.value}&lon=${longitude.value}`;
+    console.log(url);
+    fetch(url)
+      .then((response) => response.json())
+      .then((data) => {
+        address.value = data.display_name;
+        map.leaflet.setView([latitude.value, longitude.value]);
+      })
+      .catch((error) => {
+        console.error("Error fetching coordinates:", error);
+      });
+  }
 }
 
 async function submitForm(event) {
@@ -318,8 +313,10 @@ async function submitForm(event) {
     <div class="grid-x grid-padding-x">
       <div id="leafletmap" class="cell auto"></div>
     </div>
+    <br />
     <div class="grid-x grid-padding-x">
       <div id="input-box" class="cell auto">
+        <h2 style="text-align: center">Search</h2>
         <h2 class="dialog-header">Enter Location:</h2>
         <div class="grid-x"></div>
         <label for="show-address">Address:</label>
@@ -350,7 +347,20 @@ async function submitForm(event) {
           <label>Longitude:</label
           ><input id="lng" v-model="longitude" placeholder="-93.102222" />
         </div>
-        <button class="clickable" v-on:click="submitLocation(latitude.valueOf(), longitude.valueOf(), address.valueOf())">Go</button>
+        <button
+          class="button"
+          v-on:click="
+            submitLocation(
+              latitude.valueOf(),
+              longitude.valueOf(),
+              address.valueOf()
+            )
+          "
+        >
+          Go
+        </button>
+        <br />
+        <br />
         <p id="address">Here is the address: {{ address }}</p>
         <p id="coordinates">
           Here are the coordinates: {{ latitude }}, {{ longitude }}
@@ -358,48 +368,62 @@ async function submitForm(event) {
       </div>
     </div>
   </div>
-  <div>
-    <h2>Crimes</h2>
-    <table>
-      <tr>
-        <th>Neighborhood</th>
-        <th>Crime</th>
-        <th>Date</th>
-        <th>Time</th>
-      </tr>
-      <tr v-for="rows in crimes.valueOf()">
-        <th>{{ neighborhood_names[rows.neighborhood_number - 1] }}</th>
-        <th>{{ rows.incident }}</th>
-        <th>{{ rows.date }}</th>
-        <th>{{ rows.time }}</th>
-      </tr>
-    </table>
+
+  <br/>
+  <div class="grid-container">
+    <div class="grid-x grid-padding-x">
+      <div id="input-box" class="cell auto">
+        <h2 style="text-align: center">Crimes</h2>
+        <table>
+          <tr>
+            <th>Neighborhood</th>
+            <th>Crime</th>
+            <th>Date</th>
+            <th>Time</th>
+          </tr>
+          <br />
+          <tr style="text-align: center" v-for="rows in crimes.valueOf()">
+            <td>{{ neighborhood_names[rows.neighborhood_number - 1] }}</td>
+            <td>{{ rows.incident }}</td>
+            <td>{{ rows.date }}</td>
+            <td>{{ rows.time }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
   </div>
-  <div style="width: 40%; margin-left: 20px">
-    <form>
-      <h2>Add New Incident</h2>
-      <label for="case_number">Case Number:</label>
-      <input type="text" id="case_number" v-model="case_number" />
-      <label for="date">Date:</label>
-      <input type="date" id="date" v-model="date" />
-      <label for="time">Time:</label>
-      <input type="time" id="time" v-model="time" />
-      <label for="code">Code:</label>
-      <input type="text" id="code" v-model="code" />
-      <label for="incident">Incident:</label>
-      <input type="text" id="incident" v-model="incident" />
-      <label for="police_grid">Police Grid:</label>
-      <input type="text" id="police_grid" v-model="police_grid" />
-      <label for="neighborhood_number">Neighborhood Number:</label>
-      <input
-        type="text"
-        id="neighborhood_number"
-        v-model="neighborhood_number"
-      />
-      <label for="block">Address:</label>
-      <input type="text" id="block" v-model="block" />
-      <button class="button" @click="submitForm($event)">Add Incident</button>
-    </form>
+  <br />
+  <div class="grid-container">
+    <div class="grid-x grid-padding-x">
+      <div id="input-box" class="cell auto">
+        <form>
+          <h2 style="text-align: center">Add New Incident</h2>
+          <label for="case_number">Case Number:</label>
+          <input type="text" id="case_number" v-model="case_number" />
+          <label for="date">Date:</label>
+          <input type="date" id="date" v-model="date" />
+          <label for="time">Time:</label>
+          <input type="time" id="time" v-model="time" />
+          <label for="code">Code:</label>
+          <input type="text" id="code" v-model="code" />
+          <label for="incident">Incident:</label>
+          <input type="text" id="incident" v-model="incident" />
+          <label for="police_grid">Police Grid:</label>
+          <input type="text" id="police_grid" v-model="police_grid" />
+          <label for="neighborhood_number">Neighborhood Number:</label>
+          <input
+            type="text"
+            id="neighborhood_number"
+            v-model="neighborhood_number"
+          />
+          <label for="block">Address:</label>
+          <input type="text" id="block" v-model="block" />
+          <button class="button" @click="submitForm($event)">
+            Add Incident
+          </button>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 
