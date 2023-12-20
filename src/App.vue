@@ -51,6 +51,7 @@ let address = ref(
   "Minnesota State Capitol, 75, Reverend Doctor Martin Luther King Junior Boulevard, Downtown, Saint Paul, Ramsey County, Minnesota, 55155, United States"
 );
 let showAddress = ref("off");
+let crimes = ref([]);
 
 // Vue callback for once <template> HTML has been added to web page
 onMounted(() => {
@@ -123,19 +124,25 @@ onMounted(() => {
 // FUNCTIONS
 // Function called once user has entered REST API URL
 function initializeCrimes() {
-  // TODO: get code and neighborhood data
-  //       get initial 1000 crimes
   // Get the base URL from the user input
   const baseUrl = crime_url.value;
-  // Build the specific endpoint with coordinates (replace with your actual API syntax)
-  //const endpoint = `${baseUrl}/crimedata?coordinates=${coordinates}`;
-  // Use the built endpoint in your fetch call
-  //fetch(endpoint, {
-  //method: "POST",
-  //body: JSON.stringify({}), // Replace with relevant data if needed
-  //})
-  //.then((response) => response.json())
-  // ... Process the received data ...
+
+  console.log(`${baseUrl}/incidents`);
+  fetch(`${baseUrl}/incidents`)
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+      crimes.value = data;
+      console.log(crimes.valueOf());
+    })
+    .catch((error) => {
+      console.error("Error fetching crimes:", error);
+    });
+
+
+
+
+
 }
 
 // Function called when user presses 'OK' on dialog box
@@ -329,6 +336,23 @@ async function submitForm(event) {
         </p>
       </div>
     </div>
+  </div>
+  <div>
+    <h2>Crimes</h2>
+    <table>
+      <tr>
+        <th>Neighborhood</th>
+        <th>Crime</th>
+        <th>Date</th>
+        <th>Time</th>
+      </tr>
+      <tr v-for="rows in crimes.valueOf()">
+        <th>{{ rows.block }}</th>
+        <th>{{ rows.incident }}</th>
+        <th>{{ rows.date }}</th>
+        <th>{{ rows.time }}</th>
+      </tr>
+    </table>
   </div>
   <div style="width: 40%; margin-left: 20px">
     <form>
