@@ -73,6 +73,24 @@ let neighborhood_names = [
   "Summit Hill",
   "Downtown"
 ];
+
+let incidentTypes = [
+  "Homicide",
+  "Rape",
+  "Robbery",
+  "Aggrivated Assault",
+  "Burglary",
+  "Theft",
+  "Auto Theft",
+  "Simple Assault",
+  "Arson",
+  "Vandalism/Graffiti",
+  "Narcotics",
+  "Discharge",
+  "Proactive Police Visit",
+  "Community Engagement Event",
+
+];
 let filterInfo = reactive({
   code: [], neighborhood: [], sDate: null, eDate: null, limit: null, delete: null
 })
@@ -172,9 +190,60 @@ function initializeCrimes() {
 
 // Function called to filter the crimes
 function updateCrimes() {
-  if (crime_url.value !== "") {
+  if (crime_url.value != "") {
     let updateUrl = crime_url.value + "/incidents";
     console.log(filterInfo);
+    if (filterInfo.code.length != 0) {
+      updateUrl += "?code=";
+      for (let i = 0;i < filterInfo.code.length;i++) {
+        if (filterInfo.code[i] == "Homicide") {
+          updateUrl += "100,110,120,3100"
+        }
+        else if (filterInfo.code[i] == "Rape") {
+          updateUrl += "210,220"
+        }
+        else if (filterInfo.code[i] == "Robbery") {
+          updateUrl += "300,311,312,313,314,321,322,323,324,331,332,333,344,351,352,353,354,361,363,364,372,373,374"
+        }
+        else if (filterInfo.code[i] == "Aggrivated Assault") {
+          updateUrl += "400,410,411,412,420,421,422,430,431,432,440,441,442,450,451,452,453"
+        }
+        else if (filterInfo.code[i] == "Burglary") {
+          updateUrl += "500,510,511,513,515,516,520,521,523,525,526,530,531,533,535,536,540,541,543,545,546,550,551,553,555,556,560,561,563,565,566"
+        }
+        else if (filterInfo.code[i] == "Theft") {
+          updateUrl += "600,601,603,611,612,613,614,621,622,623,630,631,632,633,640,641,642,643,651,652,653,661,662,663,671,672,673,681,682,683,691,692,693"
+        }
+        else if (filterInfo.code[i] == "Auto Theft") {
+          updateUrl += "700,710,711,712,720,721,722,730,731,732"
+        }
+        else if (filterInfo.code[i] == "Simple Assault") {
+          updateUrl += "810,861,862,863,863"
+        }
+        else if (filterInfo.code[i] == "Arson") {
+          updateUrl += "900,901,903,905,911,913,915,921,922,923,925,931,933,941,942,951,961,971,972,975,981,982"
+        }
+        else if (filterInfo.code[i] == "Vandalism/Graffiti") {
+          updateUrl += "1400,1401,1410,1415,1416,1420,1425,1426,1430,1435,1436"
+        }
+        else if (filterInfo.code[i] == "Narcotics") {
+          updateUrl += "1800,1810,1811,1812,1813,1814,1815,1820,1822,1823,1824,1825,1830,1835,1840,1841,1842,1843,1844,1845,1850,1855,1860,1865,1870,1880,1885"
+        }
+        else if (filterInfo.code[i] == "Discharge") {
+          updateUrl += "2619"
+        }
+        else if (filterInfo.code[i] == "Proactive Police Visit") {
+          updateUrl += "9954,9986"
+        }
+        else if (filterInfo.code[i] == "Community Engagement Event") {
+          updateUrl += "9959"
+        }
+
+        if (i != filterInfo.code.length-1) {
+          updateUrl += ','
+        }
+      }
+    }
     if (filterInfo.neighborhood.length != 0) {
       if (updateUrl === crime_url.value + "/incidents") {
         updateUrl += "?neighborhood=";
@@ -211,7 +280,7 @@ function updateCrimes() {
         updateUrl += "&limit=" + filterInfo.limit;
       }
     }
-
+    console.log(updateUrl);
     fetch(`${updateUrl}`)
       .then((response) => response.json())
       .then((data) => {
@@ -481,7 +550,60 @@ async function submitForm(event) {
                   <th>Incident Type</th>
                 </tr>
                 <tr>
-                  <th>TBA</th>
+                  <th><input type="checkbox" id=0 value="Homicide" v-model="filterInfo.code">
+                  <label for=0>{{ incidentTypes[0] }}</label></th>
+                </tr>
+                <tr>
+                  <th><input type="checkbox" id=1 value="Rape" v-model="filterInfo.code">
+                  <label for=1>{{ incidentTypes[1] }}</label></th>
+                </tr>
+                <tr>
+                  <th><input type="checkbox" id=2 value="Robbery" v-model="filterInfo.code">
+                  <label for=2>{{ incidentTypes[2] }}</label></th>
+                </tr>
+                <tr>
+                  <th><input type="checkbox" id=3 value="Aggrivated Assault" v-model="filterInfo.code">
+                  <label for=3>{{ incidentTypes[3] }}</label></th>
+                </tr>
+                <tr>
+                  <th><input type="checkbox" id=4 value="Burglary" v-model="filterInfo.code">
+                  <label for=4>{{ incidentTypes[4] }}</label></th>
+                </tr>
+                <tr>
+                  <th><input type="checkbox" id=5 value="Theft" v-model="filterInfo.code">
+                  <label for=5>{{ incidentTypes[5] }}</label></th>
+                </tr>
+                <tr>
+                  <th><input type="checkbox" id=6 value="Auto Theft" v-model="filterInfo.code">
+                  <label for=6>{{ incidentTypes[6] }}</label></th>
+                </tr>
+                <tr>
+                  <th><input type="checkbox" id=7 value="Simple Assault" v-model="filterInfo.code">
+                  <label for=7>{{ incidentTypes[7] }}</label></th>
+                </tr>
+                <tr>
+                  <th><input type="checkbox" id=8 value="Arson" v-model="filterInfo.code">
+                  <label for=8>{{ incidentTypes[8] }}</label></th>
+                </tr>
+                <tr>
+                  <th><input type="checkbox" id=9 value="Vandalism/Graffiti" v-model="filterInfo.code">
+                  <label for=9>{{ incidentTypes[9] }}</label></th>
+                </tr>
+                <tr>
+                  <th><input type="checkbox" id=10 value="Narcotics" v-model="filterInfo.code">
+                  <label for=10>{{ incidentTypes[10] }}</label></th>
+                </tr>
+                <tr>
+                  <th><input type="checkbox" id=11 value="Discharge" v-model="filterInfo.code">
+                  <label for=11>{{ incidentTypes[11] }}</label></th>
+                </tr>
+                <tr>
+                  <th><input type="checkbox" id=12 value="Proactive Police Visit" v-model="filterInfo.code">
+                  <label for=12>{{ incidentTypes[12] }}</label></th>
+                </tr>
+                <tr>
+                  <th><input type="checkbox" id=13 value="Community Engagement Event" v-model="filterInfo.code">
+                  <label for=13>{{ incidentTypes[13] }}</label></th>
                 </tr>
               </table>
             </td>

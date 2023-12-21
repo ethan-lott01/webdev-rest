@@ -82,6 +82,7 @@ app.get("/codes", (req, res) => {
     }
   }
 
+  //sql="SELECT DISTINCT code, incident FROM Incidents ORDER BY code"
   dbSelect(sql, params)
     .then((rows) => {
       rows = JSON.parse(
