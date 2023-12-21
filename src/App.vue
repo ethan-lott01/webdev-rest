@@ -400,7 +400,25 @@ function drawMarkers() {
 }
 
 function deleteIncident(caseNumber) {
-  console.log(caseNumber);
+  const apiUrl = "http://localhost:8000/remove-incident";
+  return fetch(`${apiUrl}?case_number=${caseNumber}`, {
+    method: "DELETE",
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`Error deleting incident: ${response.statusText}`);
+      }
+      return response.text();
+    })
+    .then((result) => {
+      console.log(result);
+      this.updateCrimes();
+      alert(`Crime ${caseNumber} has been deleted`);
+    })
+    .catch((error) => {
+      console.error("Error deleting incident:", error);
+      throw error;
+    });
 }
 
 // Function called when user presses 'OK' on dialog box
