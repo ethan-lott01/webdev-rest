@@ -26,23 +26,23 @@ let map = reactive({
     se: { lat: 44.883658, lng: -92.993787 },
   },
   neighborhood_markers: [
-    { location: [44.942068, -93.020521], marker: null, name: "Southeast" },
-    { location: [44.977413, -93.025156], marker: null, name: "Greater East Side"},
-    { location: [44.931244, -93.079578], marker: null, name: "West Side"},
-    { location: [44.956192, -93.060189], marker: null, name: "Dayton's Bluff"},
-    { location: [44.978883, -93.068163], marker: null, name: "Payne/Phalen" },
-    { location: [44.975766, -93.113887], marker: null, name: "North End" },
-    { location: [44.959639, -93.121271], marker: null, name: "Frogtown"},
-    { location: [44.9477, -93.128505], marker: null, name: "Summit/University"},
-    { location: [44.930276, -93.119911], marker: null, name: "West Seventh"},
-    { location: [44.982752, -93.14791], marker: null, name: "Como" },
-    { location: [44.963631, -93.167548], marker: null, name: "Hamline/Midway" },
-    { location: [44.973971, -93.197965], marker: null, name: "St. Anthony"},
-    { location: [44.949043, -93.178261], marker: null, name: "Union Park"},
-    { location: [44.934848, -93.176736], marker: null, name: "Macalester-Groveland"},
-    { location: [44.913106, -93.170779], marker: null, name: "Highland"},
-    { location: [44.937705, -93.136997], marker: null, name: "Summit Hill"},
-    { location: [44.949203, -93.093739], marker: null, name: "Downtown"},
+    { location: [44.942068, -93.020521], marker: true, name: "Southeast", count: 0},
+    { location: [44.977413, -93.025156], marker: true, name: "Greater East Side", count: 0},
+    { location: [44.931244, -93.079578], marker: true, name: "West Side", count: 0},
+    { location: [44.956192, -93.060189], marker: true, name: "Dayton's Bluff", count: 0},
+    { location: [44.978883, -93.068163], marker: true, name: "Payne/Phalen", count: 0},
+    { location: [44.975766, -93.113887], marker: true, name: "North End", count: 0},
+    { location: [44.959639, -93.121271], marker: true, name: "Frogtown", count: 0},
+    { location: [44.9477, -93.128505], marker: true, name: "Summit/University", count: 0},
+    { location: [44.930276, -93.119911], marker: true, name: "West Seventh", count: 0},
+    { location: [44.982752, -93.14791], marker: true, name: "Como", count: 0},
+    { location: [44.963631, -93.167548], marker: true, name: "Hamline/Midway", count: 0},
+    { location: [44.973971, -93.197965], marker: true, name: "St. Anthony", count: 0},
+    { location: [44.949043, -93.178261], marker: true, name: "Union Park", count: 0},
+    { location: [44.934848, -93.176736], marker: true, name: "Macalester-Groveland", count: 0},
+    { location: [44.913106, -93.170779], marker: true, name: "Highland", count: 0},
+    { location: [44.937705, -93.136997], marker: true, name: "Summit Hill", count: 0},
+    { location: [44.949203, -93.093739], marker: true, name: "Downtown", count: 0},
   ],
 });
 let latitude = ref(44.955139);
@@ -73,6 +73,11 @@ let neighborhood_names = [
   "Summit Hill",
   "Downtown"
 ];
+let filterInfo = reactive({
+  code: [], neighborhood: [], sDate: null, eDate: null, limit: null, delete: null
+})
+let markers = [];
+const tableUpdateOnZoom = ref(0);
 
 // Vue callback for once <template> HTML has been added to web page
 onMounted(() => {
@@ -108,6 +113,17 @@ onMounted(() => {
       console.log("Error:", error);
     });
 
+  //make markers for the map
+  for (let i=0; i < map.neighborhood_markers.length; i++) {
+    let location = map.neighborhood_markers[i];
+    if (location.marker === true) {
+      markers[i] = L.marker([location.location[0],location.location[1]]).addTo(map.leaflet).bindPopup(location.name + " - Number of Crimes displayed: " + location.count);
+    }
+    else {
+      map.leaflet.removeLayer(markers[i]);
+    }
+  }
+
   // Update location when user drags the map
   map.leaflet.on("dragend", (e) => {
     const newCenter = e.target.getCenter();
@@ -123,7 +139,12 @@ onMounted(() => {
       .catch((error) => {
         console.error("Error fetching address:", error);
       });
+      drawMarkers();
   });
+  map.leaflet.on("zoomend", () => {
+    tableUpdateOnZoom.value += 1;
+    drawMarkers();
+  })
 });
 
 // FUNCTIONS
@@ -139,10 +160,91 @@ function initializeCrimes() {
       console.log(data);
       crimes.value = data;
       console.log(crimes.valueOf());
+      for (let i=0; i < data.length; i++) {
+        map.neighborhood_markers[data[i].neighborhood_number-1].count++;
+      }
+      drawMarkers();
     })
     .catch((error) => {
       console.error("Error fetching crimes:", error);
     });
+}
+
+// Function called to filter the crimes
+function updateCrimes() {
+  if (crime_url.value !== "") {
+    let updateUrl = crime_url.value + "/incidents";
+    console.log(filterInfo);
+    if (filterInfo.neighborhood.length != 0) {
+      if (updateUrl === crime_url.value + "/incidents") {
+        updateUrl += "?neighborhood=";
+      }
+      else {
+        updateUrl += "&neighborhood=";
+      }
+      for (let i = 0;i < filterInfo.neighborhood.length-1;i++) {
+        updateUrl += filterInfo.neighborhood[i] + ",";
+      }
+        updateUrl += filterInfo.neighborhood[filterInfo.neighborhood.length-1];
+    }
+    if (filterInfo.sDate != null) {
+      if (updateUrl === crime_url.value + "/incidents") {
+        updateUrl += "?start_date=" + filterInfo.sDate;
+      }
+      else {
+        updateUrl += "&start_date=" + filterInfo.sDate;
+      }
+    }
+    if (filterInfo.eDate != null) {
+      if (updateUrl === crime_url.value + "/incidents") {
+        updateUrl += "?end_date=" + filterInfo.eDate;
+      }
+      else {
+        updateUrl += "&end_date=" + filterInfo.eDate;
+      }
+    }
+    if (filterInfo.limit != null) {
+      if (updateUrl === crime_url.value + "/incidents") {
+        updateUrl += "?limit=" + filterInfo.limit;
+      }
+      else {
+        updateUrl += "&limit=" + filterInfo.limit;
+      }
+    }
+
+    fetch(`${updateUrl}`)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        crimes.value = data;
+        console.log(crimes.valueOf());
+        for (let j=0; j < map.neighborhood_markers.length; j++) {
+          map.neighborhood_markers[j].count = 0;
+        }
+        for (let i=0; i < data.length; i++) {
+          map.neighborhood_markers[data[i].neighborhood_number-1].count++;
+        }
+        drawMarkers();
+      })
+      .catch((error) => {
+        console.error("Error fetching crimes:", error);
+      });
+    tableUpdateOnZoom.value += 1;
+  }
+}
+
+function drawMarkers() {
+  for (let i=0; i < map.neighborhood_markers.length; i++) {
+    let location = map.neighborhood_markers[i];
+    if (location.marker === true) {
+      map.leaflet.removeLayer(markers[i]);
+      markers[i] = L.marker([location.location[0],location.location[1]]).addTo(map.leaflet).bindPopup(location.name + " - Number of Crimes displayed: " + location.count);
+    }
+  }
+}
+
+function deleteIncident(caseNumber) {
+  console.log(caseNumber)
 }
 
 // Function called when user presses 'OK' on dialog box
@@ -208,6 +310,18 @@ function submitLocation(lat, lon, add) {
       .catch((error) => {
         console.error("Error fetching coordinates:", error);
       });
+  }
+}
+
+function onMap(index) {
+  var indexLat = map.neighborhood_markers[index].location[1];
+  var indexLon = map.neighborhood_markers[index].location[0];
+  if (indexLat <= map.leaflet.getBounds().getEast() && indexLat >= map.leaflet.getBounds().getWest() && 
+  indexLon <= map.leaflet.getBounds().getNorth() && indexLon >= map.leaflet.getBounds().getSouth()) {
+    return true;
+  }
+  else {
+    return false;
   }
 }
 
@@ -354,6 +468,132 @@ async function submitForm(event) {
   </div>
 
   <br/>
+
+  <div class="grid-container">
+    <div class="grid-x grid-padding-x">
+      <div id="input-box" class="cell auto">
+        <h2 style="text-align: center">Filters</h2>
+        <table>
+          <tr>
+            <td>
+              <table>
+                <tr>
+                  <th>Incident Type</th>
+                </tr>
+                <tr>
+                  <th>TBA</th>
+                </tr>
+              </table>
+            </td>
+            <td>
+              <table>
+                <tr>
+                  <th>Neighborhood Name</th>
+                </tr>
+                <!-- Couldn't get the v-for to work with the v-model -->
+                <tr>
+                  <th><input type="checkbox" id=0 value=1 v-model="filterInfo.neighborhood">
+                  <label for=0>{{ neighborhood_names[0] }}</label></th>
+                </tr>
+                <tr>
+                  <th><input type="checkbox" id=1 value=2 v-model="filterInfo.neighborhood">
+                  <label for=1>{{ neighborhood_names[1] }}</label></th>
+                </tr>
+                <tr>
+                  <th><input type="checkbox" id=2 value=3 v-model="filterInfo.neighborhood">
+                  <label for=2>{{ neighborhood_names[2] }}</label></th>
+                </tr>
+                <tr>
+                  <th><input type="checkbox" id=3 value=4 v-model="filterInfo.neighborhood">
+                  <label for=3>{{ neighborhood_names[3] }}</label></th>
+                </tr>
+                <tr>
+                  <th><input type="checkbox" id=4 value=5 v-model="filterInfo.neighborhood">
+                  <label for=4>{{ neighborhood_names[4] }}</label></th>
+                </tr>
+                <tr>
+                  <th><input type="checkbox" id=5 value=6 v-model="filterInfo.neighborhood">
+                  <label for=5>{{ neighborhood_names[5] }}</label></th>
+                </tr>
+                <tr>
+                  <th><input type="checkbox" id=6 value=7 v-model="filterInfo.neighborhood">
+                  <label for=6>{{ neighborhood_names[6] }}</label></th>
+                </tr>
+                <tr>
+                  <th><input type="checkbox" id=7 value=8 v-model="filterInfo.neighborhood">
+                  <label for=7>{{ neighborhood_names[7] }}</label></th>
+                </tr>
+                <tr>
+                  <th><input type="checkbox" id=8 value=9 v-model="filterInfo.neighborhood">
+                  <label for=8>{{ neighborhood_names[8] }}</label></th>
+                </tr>
+                <tr>
+                  <th><input type="checkbox" id=9 value=10 v-model="filterInfo.neighborhood">
+                  <label for=9>{{ neighborhood_names[9] }}</label></th>
+                </tr>
+                <tr>
+                  <th><input type="checkbox" id=10 value=11 v-model="filterInfo.neighborhood">
+                  <label for=10>{{ neighborhood_names[10] }}</label></th>
+                </tr>
+                <tr>
+                  <th><input type="checkbox" id=11 value=12 v-model="filterInfo.neighborhood">
+                  <label for=11>{{ neighborhood_names[11] }}</label></th>
+                </tr>
+                <tr>
+                  <th><input type="checkbox" id=12 value=13 v-model="filterInfo.neighborhood">
+                  <label for=12>{{ neighborhood_names[12] }}</label></th>
+                </tr>
+                <tr>
+                  <th><input type="checkbox" id=13 value=14 v-model="filterInfo.neighborhood">
+                  <label for=13>{{ neighborhood_names[13] }}</label></th>
+                </tr>
+                <tr>
+                  <th><input type="checkbox" id=14 value=15 v-model="filterInfo.neighborhood">
+                  <label for=14>{{ neighborhood_names[14] }}</label></th>
+                </tr>
+                <tr>
+                  <th><input type="checkbox" id=15 value=16 v-model="filterInfo.neighborhood">
+                  <label for=15>{{ neighborhood_names[15] }}</label></th>
+                </tr>
+                <tr>
+                  <th><input type="checkbox" id=16 value=17 v-model="filterInfo.neighborhood">
+                  <label for=16>{{ neighborhood_names[16] }}</label></th>
+                </tr>
+              </table>
+            </td>
+            <td>
+              <table>
+                <tr>
+                  <th>Date Range</th>
+                </tr>
+                <tr>
+                  <td>Start Date: <input type="date" v-model="filterInfo.sDate"></td>
+                </tr>
+                <tr>
+                  <td>End Date: <input type="date" v-model="filterInfo.eDate"></td>
+                </tr>
+              </table>
+            </td>
+            <td>
+              <table>
+                <tr>
+                  <th>Max Incidents</th>
+                </tr>
+                <tr>
+                  <th><input v-model="filterInfo.limit" placeholder="Default: 1000" style="margin: 0 auto; width: 10rem"></th>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+        <div>
+          <input type="button" value="Update" style="margin: 1rem;" @click="updateCrimes()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <br/>
   <div class="grid-container">
     <div class="grid-x grid-padding-x">
       <div id="input-box" class="cell auto">
@@ -366,12 +606,17 @@ async function submitForm(event) {
             <th>Time</th>
           </tr>
           <br />
-          <tr style="text-align: center" v-for="rows in crimes.valueOf()">
-            <td>{{ neighborhood_names[rows.neighborhood_number - 1] }}</td>
-            <td>{{ rows.incident }}</td>
-            <td>{{ rows.date }}</td>
-            <td>{{ rows.time }}</td>
-          </tr>
+          <span :key="tableUpdateOnZoom"></span>
+            <tr  style="text-align: center" v-for="rows in crimes.valueOf()">
+                <td v-if="onMap(rows.neighborhood_number - 1)">{{ neighborhood_names[rows.neighborhood_number - 1] }}</td>
+                <td v-if="onMap(rows.neighborhood_number - 1)">{{ rows.incident }}</td>
+                <td v-if="onMap(rows.neighborhood_number - 1)">{{ rows.date }}</td>
+                <td v-if="onMap(rows.neighborhood_number - 1)">{{ rows.time }}</td>
+                <td v-if="onMap(rows.neighborhood_number - 1)"> 
+                  <input type="button" value="delete" @click="deleteIncident(rows.case_number)">
+                </td>
+            </tr>
+          
         </table>
       </div>
     </div>
