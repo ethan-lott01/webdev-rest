@@ -400,7 +400,7 @@ function drawMarkers() {
 }
 
 function deleteIncident(caseNumber) {
-  const apiUrl = "http://localhost:8000/remove-incident";
+  const apiUrl = crime_url.value + "/remove-incident";
   return fetch(`${apiUrl}?case_number=${caseNumber}`, {
     method: "DELETE",
   })
@@ -504,6 +504,7 @@ function onMap(index) {
 
 async function submitForm(event) {
   try {
+    event.preventDefault(); // Prevent page refresh
     // Check if form filled out
     if (
       case_number._value.trim() === "" ||
@@ -530,7 +531,7 @@ async function submitForm(event) {
       block: block._value,
     };
     console.log("Sending data to server:", requestData);
-    const apiUrl = "http://localhost:8000/new-incident";
+    const apiUrl = crime_url.value + "/new-incident";
     // Add delay
     setTimeout(async () => {
       try {
@@ -573,7 +574,7 @@ async function submitForm(event) {
           <ul class="menu">
             <li>
               <a
-                href="http://localhost:5173/?"
+                href="/?"
                 style="
                   color: #ffffff;
                   text-decoration: none;
