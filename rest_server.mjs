@@ -82,6 +82,7 @@ app.get("/codes", (req, res) => {
     }
   }
 
+  //sql="SELECT DISTINCT code, incident FROM Incidents ORDER BY code"
   dbSelect(sql, params)
     .then((rows) => {
       rows = JSON.parse(
@@ -168,7 +169,7 @@ app.get("/incidents", (req, res) => {
           params.push(ids[i]);
         }
       } else {
-        sql += " OR code=?)";
+        sql += " OR code=?";
         params.push(ids[i]);
         if (i === ids.length - 1) {
           sql += ")";
