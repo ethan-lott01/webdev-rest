@@ -127,8 +127,15 @@ function initializeCrimes() {
   // Get the base URL from the user input
   const baseUrl = crime_url.value;
 
-  console.log(`${baseUrl}/incidents`);
-  fetch(`${baseUrl}/incidents`)
+  // Get the map bounds
+  const mapBounds = map.leaflet.getBounds();
+  const sw = mapBounds.getSouthWest();
+  const ne = mapBounds.getNorthEast();
+
+  // Fetch incidents with map bounds
+  fetch(
+    `${baseUrl}/incidents?swLat=${sw.lat}&swLng=${sw.lng}&neLat=${ne.lat}&neLng=${ne.lng}`
+  )
     .then((response) => response.json())
     .then((data) => {
       console.log(data);
@@ -206,6 +213,7 @@ function submitLocation(lat, lon, add) {
   }
 }
 
+// Add Incident Form
 async function submitForm(event) {
   try {
     // Check if form filled out
@@ -223,9 +231,7 @@ async function submitForm(event) {
       window.alert("Please fill out all form fields.");
       return;
     }
-
     const dateTimeString = `${date._value}T${time._value}:00`;
-
     const requestData = {
       case_number: case_number._value,
       date_time: dateTimeString,
@@ -235,11 +241,8 @@ async function submitForm(event) {
       neighborhood_number: neighborhood_number._value,
       block: block._value,
     };
-
     console.log("Sending data to server:", requestData);
-
     const apiUrl = "http://localhost:8000/new-incident";
-
     // Add delay
     setTimeout(async () => {
       try {
@@ -252,9 +255,7 @@ async function submitForm(event) {
           },
           body: JSON.stringify(requestData),
         });
-
         console.log("Server response:", response);
-
         // Handle the response
         if (response.ok) {
           console.log("Incident added successfully");
@@ -274,21 +275,61 @@ async function submitForm(event) {
 </script>
 
 <template>
-  <dialog id="rest-dialog" open>
-    <h1 class="dialog-header">St. Paul Crime REST API</h1>
-    <label class="dialog-label">URL: </label>
-    <input
-      id="dialog-url"
-      class="dialog-input"
-      type="url"
-      v-model="crime_url"
-      placeholder="http://localhost:8000"
-    />
-    <p class="dialog-error" v-if="dialog_err">Error: must enter valid URL</p>
-    <br />
-    <button class="button" type="button" @click="closeDialog">OK</button>
-  </dialog>
   <div class="grid-container">
+    <header
+      class="grid-x grid-padding-x"
+      style="background-color: #333333; padding: 1rem 0"
+    >
+      <div class="cell">
+        <nav class="text-center" style="margin-top: 0.5rem">
+          <ul class="menu">
+            <li>
+              <a
+                href="http://localhost:5173/?"
+                style="
+                  color: #ffffff;
+                  text-decoration: none;
+                  padding: 0.5rem 1rem;
+                  margin: 0 0.5rem;
+                  border-radius: 5px;
+                  background-color: #555555;
+                "
+                >St. Paul Crime Data</a
+              >
+            </li>
+            <li>
+              <a
+                href="about.html"
+                style="
+                  color: #ffffff;
+                  text-decoration: none;
+                  padding: 0.5rem 1rem;
+                  margin: 0 0.5rem;
+                  border-radius: 5px;
+                  background-color: #555555;
+                "
+                >About the Project</a
+              >
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <dialog id="rest-dialog" open>
+      <h1 class="dialog-header">St. Paul Crime REST API</h1>
+      <label class="dialog-label">URL: </label>
+      <input
+        id="dialog-url"
+        class="dialog-input"
+        type="url"
+        v-model="crime_url"
+        placeholder="http://localhost:8000"
+      />
+      <p class="dialog-error" v-if="dialog_err">Error: must enter valid URL</p>
+      <br />
+      <button class="button" type="button" @click="closeDialog">OK</button>
+    </dialog>
+
     <div class="grid-x grid-padding-x">
       <div id="leafletmap" class="cell auto"></div>
     </div>
