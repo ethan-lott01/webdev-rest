@@ -484,21 +484,6 @@ function onMap(index) {
   }
 }
 
-function onMap(index) {
-  var indexLat = map.neighborhood_markers[index].location[1];
-  var indexLon = map.neighborhood_markers[index].location[0];
-  if (
-    indexLat <= map.leaflet.getBounds().getEast() &&
-    indexLat >= map.leaflet.getBounds().getWest() &&
-    indexLon <= map.leaflet.getBounds().getNorth() &&
-    indexLon >= map.leaflet.getBounds().getSouth()
-  ) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
 async function submitForm(event) {
   try {
     // Check if form filled out
