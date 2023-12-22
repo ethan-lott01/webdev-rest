@@ -132,6 +132,9 @@ let address = ref(
 );
 let showAddress = ref("off");
 let crimes = ref([]);
+let violent = ['Homicide', 'Rape', 'Agg. Assault', 'Simple Assault Dom.', 'Agg. Assault Dom.'];
+let property = ['Burglary', 'Theft', 'Auto Theft', 'Arson', 'Vandalism/Graffiti', 'Robbery', 'Criminal Damage'];
+let other = ['Narcotics', 'Discharge', 'Proactive Police Visit', 'Community Event'];
 
 //array to convert neighborhood number to neighboorhood name
 let neighborhood_names = [
@@ -1105,6 +1108,11 @@ async function submitForm(event) {
     <div class="grid-x grid-padding-x">
       <div id="input-box" class="cell auto">
         <h2 style="text-align: center">Crimes</h2>
+        <p>Legend: 
+          <span style="background-color: red;">Violent Crimes, </span>
+          <span style="background-color: lightgreen;">Property Crimes, </span>
+          <span style="background-color: lightblue;">Other</span>
+        </p>
         <table>
           <tr>
             <th>Neighborhood</th>
@@ -1114,7 +1122,9 @@ async function submitForm(event) {
           </tr>
           <br />
           <span :key="tableUpdateOnZoom"></span>
-          <tr style="text-align: center" v-for="rows in crimes.valueOf()">
+          <tr style="text-align: center" v-for="rows in crimes.valueOf()" :class="{'red': violent.includes(rows.incident),
+          'green': property.includes(rows.incident),
+          'blue': other.includes(rows.incident)}">
             <td v-if="onMap(rows.neighborhood_number - 1)">
               {{ neighborhood_names[rows.neighborhood_number - 1] }}
             </td>
@@ -1205,5 +1215,17 @@ async function submitForm(event) {
 
 .clickable {
   cursor: pointer;
+}
+
+.red {
+  background-color: red;
+}
+
+.green {
+  background-color: lightgreen;
+}
+
+.blue {
+  background-color: lightblue;
 }
 </style>
