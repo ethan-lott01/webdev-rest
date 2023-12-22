@@ -158,7 +158,7 @@ let incidentTypes = [
   "Homicide",
   "Rape",
   "Robbery",
-  "Aggrivated Assault",
+  "Aggravated Assault",
   "Burglary",
   "Theft",
   "Auto Theft",
@@ -175,7 +175,7 @@ let filterInfo = reactive({
   neighborhood: [],
   sDate: null,
   eDate: null,
-  limit: null,
+  limit: "",
   delete: null,
 });
 let markers = [];
@@ -297,7 +297,7 @@ function updateCrimes() {
         } else if (filterInfo.code[i] == "Robbery") {
           updateUrl +=
             "300,311,312,313,314,321,322,323,324,331,332,333,344,351,352,353,354,361,363,364,372,373,374";
-        } else if (filterInfo.code[i] == "Aggrivated Assault") {
+        } else if (filterInfo.code[i] == "Aggravated Assault") {
           updateUrl +=
             "400,410,411,412,420,421,422,430,431,432,440,441,442,450,451,452,453";
         } else if (filterInfo.code[i] == "Burglary") {
@@ -325,7 +325,6 @@ function updateCrimes() {
         } else if (filterInfo.code[i] == "Community Engagement Event") {
           updateUrl += "9959";
         }
-
         if (i != filterInfo.code.length - 1) {
           updateUrl += ",";
         }
@@ -356,7 +355,7 @@ function updateCrimes() {
         updateUrl += "&end_date=" + filterInfo.eDate;
       }
     }
-    if (filterInfo.limit != null) {
+    if (filterInfo.limit != "") {
       if (updateUrl === crime_url.value + "/incidents") {
         updateUrl += "?limit=" + filterInfo.limit;
       } else {
@@ -370,10 +369,10 @@ function updateCrimes() {
         console.log(data);
         crimes.value = data;
         console.log(crimes.valueOf());
-        for (let j = 0; j < map.neighborhood_markers.length; j++) {
+        for (let j = 0; j <= map.neighborhood_markers.length; j++) {
           map.neighborhood_markers[j].count = 0;
         }
-        for (let i = 0; i < data.length; i++) {
+        for (let i = 0; i <= data.length; i++) {
           map.neighborhood_markers[data[i].neighborhood_number - 1].count++;
         }
         drawMarkers();
@@ -656,6 +655,7 @@ async function submitForm(event) {
           <label>Longitude:</label
           ><input id="lng" v-model="longitude" placeholder="-93.102222" />
         </div>
+        <br />
         <button
           class="button"
           v-on:click="
@@ -670,10 +670,10 @@ async function submitForm(event) {
         </button>
         <br />
         <br />
-        <p id="address">Here is the address: {{ address }}</p>
-        <p id="coordinates">
-          Here are the coordinates: {{ latitude }}, {{ longitude }}
-        </p>
+        <b id="address">Here is the address:</b>
+        <p>{{ address }}</p>
+        <b id="coordinates">Here are the coordinates:</b>
+        <p>{{ latitude }}, {{ longitude }}</p>
       </div>
     </div>
   </div>
@@ -729,7 +729,7 @@ async function submitForm(event) {
                     <input
                       type="checkbox"
                       id="3"
-                      value="Aggrivated Assault"
+                      value="Aggravated Assault"
                       v-model="filterInfo.code"
                     />
                     <label for="3">{{ incidentTypes[3] }}</label>
@@ -1113,11 +1113,9 @@ async function submitForm(event) {
             <td v-if="onMap(rows.neighborhood_number - 1)">{{ rows.date }}</td>
             <td v-if="onMap(rows.neighborhood_number - 1)">{{ rows.time }}</td>
             <td v-if="onMap(rows.neighborhood_number - 1)">
-              <input
-                type="button"
-                value="delete"
-                @click="deleteIncident(rows.case_number)"
-              />
+              <button class="button" @click="deleteIncident(rows.case_number)">
+                delete
+              </button>
             </td>
           </tr>
         </table>

@@ -8,6 +8,11 @@
     <link rel="stylesheet" href="/css/foundation.css" />
     <!-- Custom Style -->
     <link rel="stylesheet" href="/css/style.css" />
+    <style>
+      .cell.medium-4 p {
+        margin: 0 25px;
+      }
+    </style>
   </head>
   <body>
     <div class="grid-container">
@@ -57,7 +62,7 @@
           <div class="grid-x">
             <div class="cell medium-4">
               <img
-                src="public/ethan_photo.jpg"
+                src="/ethan_photo.jpg"
                 alt="Ethan Lott"
                 style="width: 100%"
               />
@@ -65,7 +70,7 @@
             </div>
             <div class="cell medium-4">
               <img
-                src="public/omar_photo.png"
+                src="/omar_photo.png"
                 alt="Omar Alshaali"
                 style="width: 100%"
               />
@@ -79,16 +84,66 @@
             </div>
             <div class="cell medium-4">
               <img
-                src="public/pedro_photo.png"
+                src="/pedro_photo.png"
                 alt="Pedro Cruz"
                 style="width: 100%"
               />
               <h3 class="text-center">Pedro Cruz</h3>
             </div>
           </div>
+
+          <br /><br /><br />
+
+          <h2>Tools Used</h2>
+          <div class="grid-x">
+            <div class="cell medium-4">
+              <h4>Vue.js</h4>
+              <p>
+                Vue.js is an open-source model–view–viewmodel front end
+                JavaScript library for building user interfaces and single page
+                applications. We used Vue to communicate with our RESTful server
+                which handles the crime database, as well as building the
+                website in a single page.
+              </p>
+            </div>
+            <div class="cell medium-4">
+              <h4>Leaflet</h4>
+              <p>
+                Leaflet is an open-source JavaScript library used to build
+                interactive maps. We used it to display the neighborhood bounds,
+                and a map that could update to show addresses and coordinates.
+              </p>
+            </div>
+            <div class="cell medium-4">
+              <h4>Nominatim</h4>
+              <p>
+                Nominatim is a search engine for geographical data, specifically
+                designed for searching and retrieving information about
+                locations on the Earth's surface. We used it here to be able to
+                convert latitide and longitude coordinates into street addresses
+                to be displayed on the Leaflet map.
+              </p>
+            </div>
+          </div>
+          <br />
+          <h4>Our St. Paul Crime API</h4>
+          <p>
+            This API, built using Node.js and Express, serves as a backend for
+            our St. Paul Crime Data project. It connects to a SQLite3 database
+            containing Saint Paul's crime incident data, including crime codes,
+            neighborhoods, and incidents. The API provides various endpoints to
+            retrieve data, such as crime codes, neighborhood details, and
+            specific crime incidents. Additionally, it supports filtering data
+            based on parameters like start and end dates, crime codes, police
+            grid, and neighborhood numbers. The API also includes
+            functionalities for adding new crime incidents via a PUT request,
+            used in the Add New Incident form and removing existing incidents
+            via a DELETE request, used for the table's delete buttons.
+          </p>
         </div>
       </div>
     </div>
+    <br />
     <script src="js/vendor/jquery.js"></script>
     <script src="js/vendor/what-input.js"></script>
     <script src="js/vendor/foundation.js"></script>
